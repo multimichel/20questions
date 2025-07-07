@@ -124,6 +124,20 @@
       margin-bottom: 1rem;
       border-left: 4px solid #3182ce;
     }
+    .suggestions {
+      background: #fefcbf;
+      padding: 0.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .suggestions span {
+      background: #edf2f7;
+      margin: 0.2rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
@@ -138,6 +152,8 @@
       <div class="questions-left">Questions left: <span id="questionsCount">20</span></div>
       <div>🎯 Think you know? Use the Guess button!</div>
     </div>
+
+    <div id="suggestions" class="suggestions"></div>
     
     <div class="controls">
       <input id="questionInput" placeholder="Ask a yes/no question..." />
@@ -250,7 +266,9 @@
             "hasMagic": false,
             "canFly": false,
             "hasPet": false,
-            "isRoyalty": false
+            "isRoyalty": false,
+            "fromPrincessMovie": false,
+            "material": "plastic"
           }
         },
         {
@@ -984,6 +1002,23 @@
       let log = [];
       let gameOver = false;
 
+      const suggestionPool = [
+        "Is it from a princess movie?",
+        "Can it fly?",
+        "Is it made of plastic?",
+        "Is it redheaded?",
+        "Is it a robot?",
+        "Does it have magic?"
+      ];
+
+      function showSuggestions() {
+        const n = 4 + Math.floor(Math.random() * 2); // 4 or 5
+        const shuffled = suggestionPool.slice().sort(() => Math.random() - 0.5);
+        const chosen = shuffled.slice(0, n);
+        document.getElementById('suggestions').innerHTML =
+          chosen.map(s => `<span>${s}</span>`).join(' ');
+      }
+
       const nameAliases = {
         "buzz": "Buzz Lightyear",
         "pooh": "Winnie the Pooh",
@@ -1012,6 +1047,7 @@
           }
         }
 
+        // Fallback simple substring check
         return actual.includes(input);
       }
 
@@ -1036,10 +1072,11 @@
 
       function makeGuess() {
         if (gameOver) return;
-        
+
         const guess = document.getElementById('questionInput').value.trim();
         if (!guess) return;
-        
+
+        // Use fuzzy match when comparing guesses
         if (matchesCharacterName(guess, selectedCharacter.name)) {
           log.push({ type: 'correct', text: `🎉 Correct! It's ${selectedCharacter.name}!` });
           endGame(true);
@@ -1100,6 +1137,11 @@
           const spec = (char.traits.species || char.species);
           const ans = typeof spec === 'string' ? spec.toLowerCase() === 'car' : spec;
           return { type: 'answer', text: `🚗 Car? ${ynm(ans)}` };
+        }
+        if (q.includes('robot')) {
+          const spec = (char.traits.species || char.species);
+          const ans = typeof spec === 'string' ? spec.toLowerCase() === 'robot' : spec;
+          return { type: 'answer', text: `🤖 Robot? ${ynm(ans)}` };
         }
         
         // Check for character name
@@ -1237,8 +1279,9 @@
         document.getElementById('questionInput').disabled = false;
         document.getElementById('questionInput').value = '';
         document.querySelectorAll('button').forEach(btn => btn.disabled = false);
-        
+
         updateQuestionsCount();
+        showSuggestions();
         log.push({ type: 'hint', text: `🎮 New game started! I'm thinking of a Disney character. Ask away!` });
         updateLog();
       }
