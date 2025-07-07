@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Disney 20 Questions</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      color: #333;
+    }
+    .game-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    h1 {
+      text-align: center;
+      color: #4a5568;
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+    }
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f7fafc;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    .questions-left {
+      font-weight: bold;
+      color: #2d3748;
+    }
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    #questionInput {
+      flex: 1;
+      padding: 0.8rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      min-width: 200px;
+    }
+    #questionInput:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: #5a67d8;
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .log {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 10px;
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid #e2e8f0;
+    }
+    .log-entry {
+      margin-bottom: 0.8rem;
+      padding: 0.5rem;
+      border-radius: 5px;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .answer {
+      background: #e6fffa;
+      border-left: 4px solid #38b2ac;
+    }
+    .correct {
+      background: #f0fff4;
+      border-left: 4px solid #38a169;
+      font-weight: bold;
+    }
+    .wrong {
+      background: #fed7d7;
+      border-left: 4px solid #e53e3e;
+    }
+    .hint {
+      background: #fef5e7;
+      border-left: 4px solid #d69e2e;
+    }
+    .game-over {
+      background: #e2e8f0;
+      border-left: 4px solid #4a5568;
+      font-weight: bold;
+      text-align: center;
+    }
+    .instructions {
+      background: #ebf8ff;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border-left: 4px solid #3182ce;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>🎬 Disney 20 Questions</h1>
+    
+    <div class="instructions">
+      <strong>How to play:</strong> I'm thinking of a Disney character! Ask yes/no questions to narrow it down. You have 20 questions to guess correctly!
+    </div>
+    
+    <div class="game-info">
+      <div class="questions-left">Questions left: <span id="questionsCount">20</span></div>
+      <div>🎯 Think you know? Use the Guess button!</div>
+    </div>
+    
+    <div class="controls">
+      <input id="questionInput" placeholder="Ask a yes/no question..." />
+      <button onclick="askQuestion()">Ask</button>
+      <button onclick="makeGuess()">Guess</button>
+      <button onclick="getHint()">Hint</button>
+      <button onclick="resetGame()">New Game</button>
+    </div>
+    
+    <div id="log" class="log"></div>
+    
+    <script>
+      const characters = [
+        {
+          "name": "Ariel",
+          "movie": "The Little Mermaid",
+          "era": "renaissance",
+          "species": "mermaid",
+          "traits": {
+            "gender": "female",
+            "role": "hero",
+            "appearance": ["redhead", "blue tail"],
+            "actions": ["sings", "swims"],
+            "vibe": ["curious", "brave"],
+            "hasMagic": true,
+            "canFly": false,
+            "hasPet": true,
+            "isRoyalty": true
+          }
+        },
+        {
+          "name": "Simba",
+          "movie": "The Lion King",
+          "era": "renaissance",
+          "species": "animal",
+          "traits": {
+            "gender": "male",
+            "role": "hero",
+            "appearance": ["golden fur", "lion"],
+            "actions": ["roars", "runs"],
+            "vibe": ["proud", "loyal"],
+            "hasMagic": false,
+            "canFly": false,
+            "hasPet": false,
+            "isRoyalty": true
+          }
+        },
+        {
+          "name": "Elsa",
+          "movie": "Frozen",
+          "era": "modern",
+          "species": "human",
+          "traits": {
+            "gender": "female",
+            "role": "hero",
+            "appearance": ["blonde", "blue dress"],
+            "actions": ["sings", "casts ice"],
+            "vibe": ["cool", "distant"],
+            "hasMagic": true,
+            "canFly": false,
+            "hasPet": false,
+            "isRoyalty": true
+          }
+        }
+      ];
+
+      let selectedCharacter = null;
+      let questionsLeft = 20;
+      let log = [];
+      let gameOver = false;
+
+      function askQuestion() {
+        if (gameOver) return;
+        
+        const input = document.getElementById('questionInput').value.trim();
+        if (!input) return;
+        
+        const entry = evaluateQuestion(input);
+        log.push(entry);
+        updateLog();
+        questionsLeft--;
+        updateQuestionsCount();
+        
+        if (questionsLeft <= 0) {
+          endGame();
+        }
+        
+        document.getElementById('questionInput').value = '';
+      }
+
+      function makeGuess() {
+        if (gameOver) return;
+        
+        const guess = document.getElementById('questionInput').value.trim();
+        if (!guess) return;
+        
+        if (guess.toLowerCase() === selectedCharacter.name.toLowerCase()) {
+          log.push({ type: 'correct', text: `🎉 Correct! It's ${selectedCharacter.name}!` });
+          endGame(true);
+        } else {
+          log.push({ type: 'wrong', text: `❌ Nope, it's not ${guess}.` });
+          questionsLeft--;
+          updateQuestionsCount();
+        }
+        
+        updateLog();
+        document.getElementById('questionInput').value = '';
+        
+        if (questionsLeft <= 0) {
+          endGame();
+        }
+      }
+
+      function getHint() {
+        if (gameOver) return;
+        
+        const hints = [
+          `Movie: ${selectedCharacter.movie}`,
+          `Era: ${selectedCharacter.era}`,
+          `Species: ${selectedCharacter.species}`,
+          `Gender: ${selectedCharacter.traits.gender}`,
+          `Role: ${selectedCharacter.traits.role}`
+        ];
+        
+        const randomHint = hints[Math.floor(Math.random() * hints.length)];
+        log.push({ type: 'hint', text: `💡 Hint: ${randomHint}` });
+        updateLog();
+      }
+
+      function evaluateQuestion(question) {
+        const q = question.toLowerCase();
+        const char = selectedCharacter;
+        
+        // Check for character name
+        if (q.includes(char.name.toLowerCase())) {
+          endGame(true);
+          return { type: 'correct', text: `🎉 You got it! It's ${char.name}!` };
+        }
+        
+        // Species questions
+        if (q.includes('human')) {
+          return { type: 'answer', text: `🧍‍♂️ Human? ${char.species === 'human' ? 'Yes!' : 'No.'}` };
+        }
+        if (q.includes('animal')) {
+          return { type: 'answer', text: `🐾 Animal? ${char.species === 'animal' ? 'Yes!' : 'No.'}` };
+        }
+        if (q.includes('mermaid')) {
+          return { type: 'answer', text: `🧜‍♀️ Mermaid? ${char.species === 'mermaid' ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Gender questions
+        if (q.includes('male') && !q.includes('female')) {
+          return { type: 'answer', text: `👨 Male? ${char.traits.gender === 'male' ? 'Yes!' : 'No.'}` };
+        }
+        if (q.includes('female') && !q.includes('male')) {
+          return { type: 'answer', text: `👩 Female? ${char.traits.gender === 'female' ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Magic questions
+        if (q.includes('magic') || q.includes('magical')) {
+          return { type: 'answer', text: `✨ Has magic? ${char.traits.hasMagic ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Flying questions
+        if (q.includes('fly') || q.includes('flying')) {
+          return { type: 'answer', text: `🦅 Can fly? ${char.traits.canFly ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Royalty questions
+        if (q.includes('royal') || q.includes('prince') || q.includes('princess') || q.includes('king') || q.includes('queen')) {
+          return { type: 'answer', text: `👑 Royalty? ${char.traits.isRoyalty ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Pet questions
+        if (q.includes('pet')) {
+          return { type: 'answer', text: `🐕 Has a pet? ${char.traits.hasPet ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Action questions
+        if (q.includes('sing')) {
+          return { type: 'answer', text: `🎵 Sings? ${char.traits.actions.includes('sings') ? 'Yes!' : 'No.'}` };
+        }
+        if (q.includes('swim')) {
+          return { type: 'answer', text: `🏊‍♀️ Swims? ${char.traits.actions.includes('swims') ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Appearance questions
+        if (q.includes('red') || q.includes('redhead')) {
+          return { type: 'answer', text: `🔴 Has red hair? ${char.traits.appearance.includes('redhead') ? 'Yes!' : 'No.'}` };
+        }
+        if (q.includes('blonde') || q.includes('blond')) {
+          return { type: 'answer', text: `💛 Has blonde hair? ${char.traits.appearance.includes('blonde') ? 'Yes!' : 'No.'}` };
+        }
+        if (q.includes('blue')) {
+          return { type: 'answer', text: `🔵 Has something blue? ${char.traits.appearance.some(a => a.includes('blue')) ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Era questions
+        if (q.includes('renaissance')) {
+          return { type: 'answer', text: `🏰 From Renaissance era? ${char.era === 'renaissance' ? 'Yes!' : 'No.'}` };
+        }
+        if (q.includes('modern')) {
+          return { type: 'answer', text: `🆕 From modern era? ${char.era === 'modern' ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Movie questions
+        if (q.includes('frozen')) {
+          return { type: 'answer', text: `❄️ From Frozen? ${char.movie === 'Frozen' ? 'Yes!' : 'No.'}` };
+        }
+        if (q.includes('lion king')) {
+          return { type: 'answer', text: `🦁 From Lion King? ${char.movie === 'The Lion King' ? 'Yes!' : 'No.'}` };
+        }
+        if (q.includes('little mermaid')) {
+          return { type: 'answer', text: `🧜‍♀️ From Little Mermaid? ${char.movie === 'The Little Mermaid' ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Role questions
+        if (q.includes('hero') || q.includes('good')) {
+          return { type: 'answer', text: `🦸‍♀️ Is a hero? ${char.traits.role === 'hero' ? 'Yes!' : 'No.'}` };
+        }
+        
+        // Default response
+        return { type: 'answer', text: "🤔 I'm not sure how to answer that. Try asking about: species, gender, magic, appearance, or movie!" };
+      }
+
+      function updateLog() {
+        const logDiv = document.getElementById('log');
+        logDiv.innerHTML = log.map(entry => 
+          `<div class="log-entry ${entry.type}">${entry.text}</div>`
+        ).join('');
+        logDiv.scrollTop = logDiv.scrollHeight;
+      }
+
+      function updateQuestionsCount() {
+        document.getElementById('questionsCount').textContent = questionsLeft;
+      }
+
+      function endGame(won = false) {
+        gameOver = true;
+        document.getElementById('questionInput').disabled = true;
+        document.querySelectorAll('button').forEach(btn => {
+          if (btn.textContent !== 'New Game') btn.disabled = true;
+        });
+        
+        log.push({ 
+          type: 'game-over', 
+          text: won ? "🏆 Congratulations! You won!" : `💀 Game over! The character was ${selectedCharacter.name} from ${selectedCharacter.movie}` 
+        });
+        updateLog();
+      }
+
+      function resetGame() {
+        selectedCharacter = characters[Math.floor(Math.random() * characters.length)];
+        questionsLeft = 20;
+        log = [];
+        gameOver = false;
+        
+        document.getElementById('questionInput').disabled = false;
+        document.getElementById('questionInput').value = '';
+        document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+        
+        updateQuestionsCount();
+        log.push({ type: 'hint', text: `🎮 New game started! I'm thinking of a Disney character. Ask away!` });
+        updateLog();
+      }
+
+      // Allow Enter key to ask question
+      document.getElementById('questionInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          askQuestion();
+        }
+      });
+
+      // Start the game
+      resetGame();
+    </script>
+  </div>
+</body>
+</html>
