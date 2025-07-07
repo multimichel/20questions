@@ -300,7 +300,7 @@
         const input = document.getElementById('questionInput').value.trim();
         if (!input) return;
         
-        const entry = evaluateQuestion(input);
+        const entry = evaluateQuestion(input, selectedCharacter);
         log.push(entry);
         updateLog();
         questionsLeft--;
@@ -352,9 +352,34 @@
         updateLog();
       }
 
-      function evaluateQuestion(question) {
+      function evaluateQuestion(question, character = selectedCharacter) {
         const q = question.toLowerCase();
-        const char = selectedCharacter;
+        const char = character;
+
+        function ynm(val) {
+          if (val === true) return 'Yes!';
+          if (val === false) return 'No.';
+          if (val === 'maybe') return 'Maybe.';
+          return "I'm not sure.";
+        }
+
+        // Fuzzy trait questions
+        if (/\bvillain\b|\bevil\b/.test(q)) {
+          return { type: 'answer', text: `😈 Villain? ${ynm(char.traits.isVillain)}` };
+        }
+        if (q.includes('princess') && q.includes('movie')) {
+          return { type: 'answer', text: `🎬 From a princess movie? ${ynm(char.traits.fromPrincessMovie)}` };
+        }
+        if (q.includes('plastic')) {
+          const mat = char.traits.material;
+          const ans = typeof mat === 'string' ? mat.toLowerCase() === 'plastic' : mat;
+          return { type: 'answer', text: `🏗️ Plastic? ${ynm(ans)}` };
+        }
+        if (/\bcar\b/.test(q)) {
+          const spec = (char.traits.species || char.species);
+          const ans = typeof spec === 'string' ? spec.toLowerCase() === 'car' : spec;
+          return { type: 'answer', text: `🚗 Car? ${ynm(ans)}` };
+        }
         
         // Check for character name
         if (q.includes(char.name.toLowerCase())) {
