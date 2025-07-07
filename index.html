@@ -201,6 +201,91 @@
             "hasPet": false,
             "isRoyalty": true
           }
+        },
+        {
+          "name": "Belle",
+          "movie": "Beauty and the Beast",
+          "era": "renaissance",
+          "species": "human",
+          "traits": {
+            "gender": "female",
+            "role": "hero",
+            "appearance": ["brown hair", "yellow dress"],
+            "actions": ["reads", "sings"],
+            "vibe": ["kind", "curious"],
+            "hasMagic": false,
+            "canFly": false,
+            "hasPet": false,
+            "isRoyalty": false
+          }
+        },
+        {
+          "name": "Mulan",
+          "movie": "Mulan",
+          "era": "renaissance",
+          "species": "human",
+          "traits": {
+            "gender": "female",
+            "role": "hero",
+            "appearance": ["black hair", "warrior"],
+            "actions": ["fights", "trains"],
+            "vibe": ["brave", "determined"],
+            "hasMagic": false,
+            "canFly": false,
+            "hasPet": true,
+            "isRoyalty": false
+          }
+        },
+        {
+          "name": "Buzz Lightyear",
+          "movie": "Toy Story",
+          "era": "modern",
+          "species": "toy",
+          "traits": {
+            "gender": "male",
+            "role": "hero",
+            "appearance": ["space suit", "purple accents"],
+            "actions": ["laser", "glides"],
+            "vibe": ["heroic", "daring"],
+            "hasMagic": false,
+            "canFly": false,
+            "hasPet": false,
+            "isRoyalty": false
+          }
+        },
+        {
+          "name": "Tiana",
+          "movie": "The Princess and the Frog",
+          "era": "modern",
+          "species": "human",
+          "traits": {
+            "gender": "female",
+            "role": "hero",
+            "appearance": ["brown hair", "green dress"],
+            "actions": ["cooks", "sings"],
+            "vibe": ["ambitious", "hardworking"],
+            "hasMagic": false,
+            "canFly": false,
+            "hasPet": false,
+            "isRoyalty": true
+          }
+        },
+        {
+          "name": "Aladdin",
+          "movie": "Aladdin",
+          "era": "renaissance",
+          "species": "human",
+          "traits": {
+            "gender": "male",
+            "role": "hero",
+            "appearance": ["black hair", "vest"],
+            "actions": ["steals", "rides carpet"],
+            "vibe": ["adventurous", "street-smart"],
+            "hasMagic": false,
+            "canFly": true,
+            "hasPet": true,
+            "isRoyalty": false
+          }
         }
       ];
 
@@ -289,10 +374,18 @@
         }
         
         // Gender questions
-        if (q.includes('male') && !q.includes('female')) {
+        const maleTerms = ['male', 'man', 'boy', 'guy'];
+        const femaleTerms = ['female', 'woman', 'girl', 'lady'];
+        const hasMale = maleTerms.some(t => q.includes(t));
+        const hasFemale = femaleTerms.some(t => q.includes(t));
+
+        if (hasMale && hasFemale || q.includes('gender')) {
+          return { type: 'answer', text: `⚧️ It's ${char.traits.gender}.` };
+        }
+        if (hasMale && !hasFemale) {
           return { type: 'answer', text: `👨 Male? ${char.traits.gender === 'male' ? 'Yes!' : 'No.'}` };
         }
-        if (q.includes('female') && !q.includes('male')) {
+        if (hasFemale && !hasMale) {
           return { type: 'answer', text: `👩 Female? ${char.traits.gender === 'female' ? 'Yes!' : 'No.'}` };
         }
         
