@@ -294,6 +294,37 @@
       let log = [];
       let gameOver = false;
 
+      const nameAliases = {
+        "buzz": "Buzz Lightyear",
+        "pooh": "Winnie the Pooh",
+        "woody": "Woody",
+        "ariel": "Ariel",
+        "moana": "Moana",
+        "mirabel": "Mirabel Madrigal",
+        "maui": "Maui"
+      };
+
+      function matchesCharacterName(userInput, actualName) {
+        const input = userInput.toLowerCase();
+        const actual = actualName.toLowerCase();
+
+        if (nameAliases[input] && nameAliases[input].toLowerCase() === actual) {
+          return true;
+        }
+
+        const tokens = input.split(/[^a-z]+/).filter(Boolean);
+        for (const t of tokens) {
+          if (nameAliases[t] && nameAliases[t].toLowerCase() === actual) {
+            return true;
+          }
+          if (actual.includes(t)) {
+            return true;
+          }
+        }
+
+        return actual.includes(input);
+      }
+
       function askQuestion() {
         if (gameOver) return;
         
@@ -319,7 +350,7 @@
         const guess = document.getElementById('questionInput').value.trim();
         if (!guess) return;
         
-        if (guess.toLowerCase() === selectedCharacter.name.toLowerCase()) {
+        if (matchesCharacterName(guess, selectedCharacter.name)) {
           log.push({ type: 'correct', text: `🎉 Correct! It's ${selectedCharacter.name}!` });
           endGame(true);
         } else {
@@ -357,7 +388,7 @@
         const char = selectedCharacter;
         
         // Check for character name
-        if (q.includes(char.name.toLowerCase())) {
+        if (matchesCharacterName(question, char.name)) {
           endGame(true);
           return { type: 'correct', text: `🎉 You got it! It's ${char.name}!` };
         }
