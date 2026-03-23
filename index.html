@@ -2,1300 +2,697 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Disney 20 Questions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ink Rush</title>
   <style>
+    :root {
+      color-scheme: dark;
+      --bg-top: #26103f;
+      --bg-bottom: #0c1223;
+      --panel: rgba(17, 24, 39, 0.78);
+      --panel-strong: rgba(15, 23, 42, 0.94);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #f97316;
+      --accent-2: #22d3ee;
+      --danger: #fb7185;
+      --success: #34d399;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       margin: 0;
-      padding: 2rem;
       min-height: 100vh;
-      color: #333;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(167, 139, 250, 0.35), transparent 30%),
+        linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 20px 12px 32px;
     }
-    .game-container {
-      background: white;
-      padding: 2rem;
-      border-radius: 15px;
-      max-width: 700px;
-      margin: auto;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+
+    .phone-shell {
+      width: min(100%, 430px);
+      min-height: calc(100vh - 24px);
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.94), rgba(15, 23, 42, 0.98));
+      border-radius: 34px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
     }
-    h1 {
-      text-align: center;
-      color: #4a5568;
-      margin-bottom: 2rem;
-      font-size: 2.5rem;
+
+    .phone-shell::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 34%;
+      height: 24px;
+      border-radius: 999px;
+      background: rgba(2, 6, 23, 0.9);
+      z-index: 3;
     }
-    .game-info {
+
+    .app {
+      padding: 38px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 100%;
+    }
+
+    .topbar, .card, .order-card, .mix-panel, .footer-card {
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+    }
+
+    .topbar {
+      padding: 16px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #f7fafc;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-bottom: 1rem;
     }
-    .questions-left {
-      font-weight: bold;
-      color: #2d3748;
-    }
-    .controls {
+
+    .brand {
       display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 4px;
     }
-    #questionInput {
-      flex: 1;
-      padding: 0.8rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 1rem;
-      min-width: 200px;
+
+    .eyebrow {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #c084fc;
+      font-weight: 700;
     }
-    #questionInput:focus {
-      outline: none;
-      border-color: #667eea;
+
+    h1 {
+      margin: 0;
+      font-size: 1.7rem;
+      line-height: 1;
     }
-    button {
-      background: #667eea;
+
+    .subcopy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      max-width: 24ch;
+    }
+
+    .pill {
+      background: rgba(248, 113, 113, 0.18);
+      color: #fecdd3;
+      border: 1px solid rgba(251, 113, 133, 0.25);
+      padding: 10px 12px;
+      border-radius: 18px;
+      text-align: center;
+      min-width: 82px;
+    }
+
+    .pill strong {
+      display: block;
+      font-size: 1.15rem;
       color: white;
-      border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: all 0.3s ease;
     }
-    button:hover {
-      background: #5a67d8;
-      transform: translateY(-2px);
+
+    .card {
+      padding: 16px;
     }
-    button:disabled {
-      background: #cbd5e0;
-      cursor: not-allowed;
-      transform: none;
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
-    .log {
-      background: #f8f9fa;
-      padding: 1rem;
-      border-radius: 10px;
-      height: 400px;
-      overflow-y: auto;
-      border: 1px solid #e2e8f0;
-    }
-    .log-entry {
-      margin-bottom: 0.8rem;
-      padding: 0.5rem;
-      border-radius: 5px;
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .answer {
-      background: #e6fffa;
-      border-left: 4px solid #38b2ac;
-    }
-    .correct {
-      background: #f0fff4;
-      border-left: 4px solid #38a169;
-      font-weight: bold;
-    }
-    .wrong {
-      background: #fed7d7;
-      border-left: 4px solid #e53e3e;
-    }
-    .hint {
-      background: #fef5e7;
-      border-left: 4px solid #d69e2e;
-    }
-    .game-over {
-      background: #e2e8f0;
-      border-left: 4px solid #4a5568;
-      font-weight: bold;
+
+    .stat {
+      padding: 12px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.05);
       text-align: center;
     }
-    .instructions {
-      background: #ebf8ff;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      border-left: 4px solid #3182ce;
+
+    .stat span {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
     }
-    .suggestions {
-      background: #fefcbf;
-      padding: 0.5rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
+
+    .stat strong { font-size: 1.2rem; }
+
+    .order-card {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .order-header h2,
+    .mix-panel h3,
+    .footer-card h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .order-header p,
+    .footer-card p,
+    .mix-panel p {
+      margin: 6px 0 0;
+      color: var(--muted);
       font-size: 0.9rem;
     }
-    .suggestions span {
-      background: #edf2f7;
-      margin: 0.2rem;
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      display: inline-block;
+
+    .badge {
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      background: rgba(34, 211, 238, 0.15);
+      color: #a5f3fc;
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      white-space: nowrap;
+    }
+
+    .color-preview-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .swatch {
+      min-height: 130px;
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    .swatch::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.18), transparent 55%, rgba(15, 23, 42, 0.2));
+    }
+
+    .swatch-label {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .swatch-label span {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .swatch-label strong { font-size: 0.95rem; }
+
+    .mix-panel {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .mix-bowl {
+      min-height: 168px;
+      border-radius: 30px 30px 42px 42px;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.24), transparent 25%), rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ink-surface {
+      position: absolute;
+      inset: 18px;
+      border-radius: 26px 26px 34px 34px;
+      box-shadow: inset 0 14px 30px rgba(255,255,255,0.16), inset 0 -18px 30px rgba(0,0,0,0.24);
+      transition: background 180ms ease, transform 180ms ease;
+    }
+
+    .ink-surface.mix-flash {
+      transform: scale(1.02);
+    }
+
+    .formula {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .drop-chip {
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      font-size: 0.86rem;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .pour-btn, .action-btn {
+      border: 0;
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      border-radius: 22px;
+      padding: 14px 10px;
+      cursor: pointer;
+      transition: transform 140ms ease, filter 140ms ease, opacity 140ms ease;
+    }
+
+    .pour-btn:active, .action-btn:active { transform: scale(0.98); }
+    .pour-btn:hover, .action-btn:hover { filter: brightness(1.06); }
+    .pour-btn:disabled, .action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .serve-btn { background: linear-gradient(135deg, #10b981, #059669); }
+    .reset-btn { background: rgba(255,255,255,0.08); }
+
+    .feedback-meter {
+      display: grid;
+      gap: 8px;
+    }
+
+    .meter-track {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--danger), #f59e0b, var(--success));
+      transition: width 180ms ease;
+    }
+
+    .footer-card {
+      padding: 16px;
+      margin-top: auto;
+    }
+
+    .tips {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+      font-size: 0.9rem;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%) translateY(16px);
+      background: rgba(15, 23, 42, 0.96);
+      color: white;
+      padding: 14px 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: var(--shadow);
+      width: min(90vw, 360px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 10;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (min-width: 700px) {
+      body { padding: 32px; }
+      .phone-shell { min-height: 820px; }
     }
   </style>
 </head>
 <body>
-  <div class="game-container">
-    <h1>🎬 Disney 20 Questions</h1>
-    
-    <div class="instructions">
-      <strong>How to play:</strong> I'm thinking of a Disney character! Ask yes/no questions to narrow it down. You have 20 questions to guess correctly!
-    </div>
-    
-    <div class="game-info">
-      <div class="questions-left">Questions left: <span id="questionsCount">20</span></div>
-      <div>🎯 Think you know? Use the Guess button!</div>
-    </div>
+  <div class="phone-shell">
+    <main class="app">
+      <section class="topbar">
+        <div class="brand">
+          <span class="eyebrow">Mobile Mix Lab</span>
+          <h1>Ink Rush</h1>
+          <p class="subcopy">Match frantic print-shop orders before the conveyor takes them away.</p>
+        </div>
+        <div class="pill">
+          Time
+          <strong id="timeLeft">35</strong>
+        </div>
+      </section>
 
-    <div id="suggestions" class="suggestions"></div>
-    
-    <div class="controls">
-      <input id="questionInput" placeholder="Ask a yes/no question..." />
-      <button onclick="askQuestion()">Ask</button>
-      <button onclick="makeGuess()">Guess</button>
-      <button onclick="getHint()">Hint</button>
-      <button onclick="resetGame()">New Game</button>
-    </div>
-    
-    <div id="log" class="log"></div>
-    
-    <script>
-      const characters = [
-        {
-          "name": "Ariel",
-          "movie": "The Little Mermaid",
-          "era": "renaissance",
-          "species": "mermaid",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["redhead", "blue tail"],
-            "actions": ["sings", "swims"],
-            "vibe": ["curious", "brave"],
-            "hasMagic": true,
-            "canFly": false,
-            "hasPet": true,
-            "isRoyalty": true
-          }
-        },
-        {
-          "name": "Simba",
-          "movie": "The Lion King",
-          "era": "renaissance",
-          "species": "animal",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["golden fur", "lion"],
-            "actions": ["roars", "runs"],
-            "vibe": ["proud", "loyal"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": true
-          }
-        },
-        {
-          "name": "Elsa",
-          "movie": "Frozen",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["blonde", "blue dress"],
-            "actions": ["sings", "casts ice"],
-            "vibe": ["cool", "distant"],
-            "hasMagic": true,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": true
-          }
-        },
-        {
-          "name": "Belle",
-          "movie": "Beauty and the Beast",
-          "era": "renaissance",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["brown hair", "yellow dress"],
-            "actions": ["reads", "sings"],
-            "vibe": ["kind", "curious"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false
-          }
-        },
-        {
-          "name": "Mulan",
-          "movie": "Mulan",
-          "era": "renaissance",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["black hair", "warrior"],
-            "actions": ["fights", "trains"],
-            "vibe": ["brave", "determined"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": true,
-            "isRoyalty": false
-          }
-        },
-        {
-          "name": "Buzz Lightyear",
-          "movie": "Toy Story",
-          "era": "modern",
-          "species": "toy",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["space suit", "purple accents"],
-            "actions": ["laser", "glides"],
-            "vibe": ["heroic", "daring"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "fromPrincessMovie": false,
-            "material": "plastic"
-          }
-        },
-        {
-          "name": "Tiana",
-          "movie": "The Princess and the Frog",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["brown hair", "green dress"],
-            "actions": ["cooks", "sings"],
-            "vibe": ["ambitious", "hardworking"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": true
-          }
-        },
-        {
-          "name": "Aladdin",
-          "movie": "Aladdin",
-          "era": "renaissance",
-          "species": "human",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["black hair", "vest"],
-            "actions": ["steals", "rides carpet"],
-            "vibe": ["adventurous", "street-smart"],
-            "hasMagic": false,
-            "canFly": true,
-            "hasPet": true,
-            "isRoyalty": false
-          }
-        },
-        {
-          "name": "Moana",
-          "movie": "Moana",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["brown hair", "islander"],
-            "actions": ["sails", "explores"],
-            "vibe": ["brave", "adventurous"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": true,
-            "isRoyalty": true,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": true,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Maui",
-          "movie": "Moana",
-          "era": "modern",
-          "species": "demigod",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["tattoos", "long hair"],
-            "actions": ["shapeshifts", "sings"],
-            "vibe": ["boastful", "funny"],
-            "hasMagic": true,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": true,
-            "species": "demigod",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Heihei",
-          "movie": "Moana",
-          "era": "modern",
-          "species": "chicken",
-          "traits": {
-            "gender": "male",
-            "role": "sidekick",
-            "appearance": ["colorful feathers"],
-            "actions": ["clucks", "wanders"],
-            "vibe": ["silly"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": true,
-            "isVillain": false,
-            "fromPrincessMovie": true,
-            "species": "chicken",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Tamatoa",
-          "movie": "Moana",
-          "era": "modern",
-          "species": "crab",
-          "traits": {
-            "gender": "male",
-            "role": "villain",
-            "appearance": ["giant crab", "shiny shell"],
-            "actions": ["sings", "hoards treasures"],
-            "vibe": ["greedy"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": true,
-            "isVillain": true,
-            "fromPrincessMovie": true,
-            "species": "crab",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Mirabel Madrigal",
-          "movie": "Encanto",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["glasses", "curly hair"],
-            "actions": ["sings", "cares"],
-            "vibe": ["optimistic", "loving"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Luisa Madrigal",
-          "movie": "Encanto",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["muscular", "brown hair"],
-            "actions": ["lifts", "helps"],
-            "vibe": ["strong", "caring"],
-            "hasMagic": true,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Isabela Madrigal",
-          "movie": "Encanto",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["long hair", "flowers"],
-            "actions": ["grows plants", "sings"],
-            "vibe": ["graceful"],
-            "hasMagic": true,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Antonio Madrigal",
-          "movie": "Encanto",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["young", "curly hair"],
-            "actions": ["talks to animals"],
-            "vibe": ["innocent"],
-            "hasMagic": true,
-            "canFly": false,
-            "hasPet": true,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Bruno Madrigal",
-          "movie": "Encanto",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["poncho", "dark hair"],
-            "actions": ["sees visions"],
-            "vibe": ["mysterious"],
-            "hasMagic": true,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Abuela Alma",
-          "movie": "Encanto",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "mentor",
-            "appearance": ["gray hair"],
-            "actions": ["leads family"],
-            "vibe": ["strict", "loving"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Luca Paguro",
-          "movie": "Luca",
-          "era": "modern",
-          "species": "sea monster",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["sea monster", "brown hair"],
-            "actions": ["swims", "explores"],
-            "vibe": ["curious"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "sea monster",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Alberto Scorfano",
-          "movie": "Luca",
-          "era": "modern",
-          "species": "sea monster",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["sea monster", "spiky hair"],
-            "actions": ["swims", "dreams"],
-            "vibe": ["free-spirited"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "sea monster",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Giulia Marcovaldo",
-          "movie": "Luca",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["red hair", "freckles"],
-            "actions": ["studies", "rides bicycle"],
-            "vibe": ["determined"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Miguel Rivera",
-          "movie": "Coco",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["brown hair", "guitar"],
-            "actions": ["sings", "travels to afterlife"],
-            "vibe": ["passionate"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Hector Rivera",
-          "movie": "Coco",
-          "era": "modern",
-          "species": "skeleton",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["skeleton", "hat"],
-            "actions": ["sings", "guides"],
-            "vibe": ["funny"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "skeleton",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Mama Imelda",
-          "movie": "Coco",
-          "era": "modern",
-          "species": "skeleton",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["skeleton", "dress"],
-            "actions": ["sings"],
-            "vibe": ["strict"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "skeleton",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Ernesto de la Cruz",
-          "movie": "Coco",
-          "era": "modern",
-          "species": "skeleton",
-          "traits": {
-            "gender": "male",
-            "role": "villain",
-            "appearance": ["famous singer"],
-            "actions": ["sings"],
-            "vibe": ["charismatic"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": false,
-            "isVillain": true,
-            "fromPrincessMovie": false,
-            "species": "skeleton",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Raya",
-          "movie": "Raya and the Last Dragon",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["warrior", "brown hair"],
-            "actions": ["fights", "rides tuk tuk"],
-            "vibe": ["brave", "loyal"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": true,
-            "isRoyalty": true,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": true,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Sisu",
-          "movie": "Raya and the Last Dragon",
-          "era": "modern",
-          "species": "dragon",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["blue dragon"],
-            "actions": ["swims", "magic"],
-            "vibe": ["humorous"],
-            "hasMagic": true,
-            "canFly": true,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": true,
-            "species": "dragon",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Namaari",
-          "movie": "Raya and the Last Dragon",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "antagonist",
-            "appearance": ["short hair", "warrior"],
-            "actions": ["fights"],
-            "vibe": ["serious"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": true,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": true,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Judy Hopps",
-          "movie": "Zootopia",
-          "era": "modern",
-          "species": "rabbit",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["gray fur", "police uniform"],
-            "actions": ["investigates", "runs"],
-            "vibe": ["optimistic"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": true,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "rabbit",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Nick Wilde",
-          "movie": "Zootopia",
-          "era": "modern",
-          "species": "fox",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["red fur", "green shirt"],
-            "actions": ["sells", "investigates"],
-            "vibe": ["sly"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": true,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "fox",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Chief Bogo",
-          "movie": "Zootopia",
-          "era": "modern",
-          "species": "buffalo",
-          "traits": {
-            "gender": "male",
-            "role": "mentor",
-            "appearance": ["police chief"],
-            "actions": ["commands"],
-            "vibe": ["stern"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": true,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "buffalo",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Bellwether",
-          "movie": "Zootopia",
-          "era": "modern",
-          "species": "sheep",
-          "traits": {
-            "gender": "female",
-            "role": "villain",
-            "appearance": ["small sheep"],
-            "actions": ["schemes"],
-            "vibe": ["deceptive"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": true,
-            "isVillain": true,
-            "fromPrincessMovie": false,
-            "species": "sheep",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Mei Lee",
-          "movie": "Turning Red",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["red panda", "glasses"],
-            "actions": ["draws", "turns into panda"],
-            "vibe": ["energetic"],
-            "hasMagic": true,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Ming Lee",
-          "movie": "Turning Red",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "mentor",
-            "appearance": ["mother", "brown hair"],
-            "actions": ["protects"],
-            "vibe": ["strict"],
-            "hasMagic": true,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Abby Park",
-          "movie": "Turning Red",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "sidekick",
-            "appearance": ["purple overalls"],
-            "actions": ["cheers"],
-            "vibe": ["energetic"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Hiro Hamada",
-          "movie": "Big Hero 6",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["tech gear", "black hair"],
-            "actions": ["builds robots"],
-            "vibe": ["smart"],
-            "hasMagic": false,
-            "canFly": false,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        },
-        {
-          "name": "Baymax",
-          "movie": "Big Hero 6",
-          "era": "modern",
-          "species": "robot",
-          "traits": {
-            "gender": "male",
-            "role": "hero",
-            "appearance": ["inflatable", "white"],
-            "actions": ["heals", "fights"],
-            "vibe": ["gentle"],
-            "hasMagic": false,
-            "canFly": true,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": false,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "robot",
-            "material": "metal"
-          }
-        },
-        {
-          "name": "Go Go Tomago",
-          "movie": "Big Hero 6",
-          "era": "modern",
-          "species": "human",
-          "traits": {
-            "gender": "female",
-            "role": "hero",
-            "appearance": ["short hair", "armor"],
-            "actions": ["skates", "fights"],
-            "vibe": ["tough"],
-            "hasMagic": false,
-            "canFly": true,
-            "hasPet": false,
-            "isRoyalty": false,
-            "isHuman": true,
-            "isAnimal": false,
-            "isVillain": false,
-            "fromPrincessMovie": false,
-            "species": "human",
-            "material": "organic"
-          }
-        }
-      ];
+      <section class="card stats">
+        <div class="stat"><span>Score</span><strong id="score">0</strong></div>
+        <div class="stat"><span>Round</span><strong id="round">1</strong></div>
+        <div class="stat"><span>Drops</span><strong id="dropsLeft">12</strong></div>
+      </section>
 
-      let selectedCharacter = null;
-      let questionsLeft = 20;
-      let log = [];
-      let gameOver = false;
+      <section class="order-card">
+        <div class="order-header">
+          <div>
+            <h2 id="orderTitle">Order: Sunset Soda</h2>
+            <p id="orderBlurb">Warm coral with a hint of tropical neon.</p>
+          </div>
+          <div class="badge" id="accuracyBadge">Match 90%+</div>
+        </div>
 
-      const suggestionPool = [
-        "Is it from a princess movie?",
-        "Can it fly?",
-        "Is it made of plastic?",
-        "Is it redheaded?",
-        "Is it a robot?",
-        "Does it have magic?"
-      ];
+        <div class="color-preview-wrap">
+          <div class="swatch" id="targetSwatch">
+            <div class="swatch-label">
+              <span>Target</span>
+              <strong id="targetHex">#FF6A5C</strong>
+            </div>
+          </div>
+          <div class="swatch" id="mixSwatch">
+            <div class="swatch-label">
+              <span>Your Mix</span>
+              <strong id="mixHex">#6B7280</strong>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      function showSuggestions() {
-        const n = 4 + Math.floor(Math.random() * 2); // 4 or 5
-        const shuffled = suggestionPool.slice().sort(() => Math.random() - 0.5);
-        const chosen = shuffled.slice(0, n);
-        document.getElementById('suggestions').innerHTML =
-          chosen.map(s => `<span>${s}</span>`).join(' ');
-      }
+      <section class="mix-panel">
+        <div>
+          <h3>Ink Bowl</h3>
+          <p>Tap pigments to pour one drop at a time. Near misses still score, but perfect matches boost the timer.</p>
+        </div>
 
-      const nameAliases = {
-        "buzz": "Buzz Lightyear",
-        "pooh": "Winnie the Pooh",
-        "woody": "Woody",
-        "ariel": "Ariel",
-        "moana": "Moana",
-        "mirabel": "Mirabel Madrigal",
-        "maui": "Maui"
-      };
+        <div class="mix-bowl">
+          <div class="ink-surface" id="inkSurface"></div>
+        </div>
 
-      function matchesCharacterName(userInput, actualName) {
-        const input = userInput.toLowerCase();
-        const actual = actualName.toLowerCase();
+        <div class="formula" id="formula"></div>
 
-        if (nameAliases[input] && nameAliases[input].toLowerCase() === actual) {
-          return true;
-        }
+        <div class="controls-grid" id="pigmentButtons"></div>
 
-        const tokens = input.split(/[^a-z]+/).filter(Boolean);
-        for (const t of tokens) {
-          if (nameAliases[t] && nameAliases[t].toLowerCase() === actual) {
-            return true;
-          }
-          if (actual.includes(t)) {
-            return true;
-          }
-        }
+        <div class="feedback-meter">
+          <div style="display:flex;justify-content:space-between;gap:10px;font-size:0.9rem;color:var(--muted);">
+            <span>Match Accuracy</span>
+            <strong id="accuracyText" style="color:white;">0%</strong>
+          </div>
+          <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+        </div>
 
-        // Fallback simple substring check
-        return actual.includes(input);
-      }
+        <div class="action-row">
+          <button class="action-btn serve-btn" id="serveBtn">Serve Order</button>
+          <button class="action-btn reset-btn" id="clearBtn">Clear Bowl</button>
+        </div>
+      </section>
 
-      function askQuestion() {
-        if (gameOver) return;
-        
-        const input = document.getElementById('questionInput').value.trim();
-        if (!input) return;
-        
-        const entry = evaluateQuestion(input, selectedCharacter);
-        log.push(entry);
-        updateLog();
-        questionsLeft--;
-        updateQuestionsCount();
-        
-        if (questionsLeft <= 0) {
-          endGame();
-        }
-        
-        document.getElementById('questionInput').value = '';
-      }
-
-      function makeGuess() {
-        if (gameOver) return;
-
-        const guess = document.getElementById('questionInput').value.trim();
-        if (!guess) return;
-
-        // Use fuzzy match when comparing guesses
-        if (matchesCharacterName(guess, selectedCharacter.name)) {
-          log.push({ type: 'correct', text: `🎉 Correct! It's ${selectedCharacter.name}!` });
-          endGame(true);
-        } else {
-          log.push({ type: 'wrong', text: `❌ Nope, it's not ${guess}.` });
-          questionsLeft--;
-          updateQuestionsCount();
-        }
-        
-        updateLog();
-        document.getElementById('questionInput').value = '';
-        
-        if (questionsLeft <= 0) {
-          endGame();
-        }
-      }
-
-      function getHint() {
-        if (gameOver) return;
-        
-        const hints = [
-          `Movie: ${selectedCharacter.movie}`,
-          `Era: ${selectedCharacter.era}`,
-          `Species: ${selectedCharacter.species}`,
-          `Gender: ${selectedCharacter.traits.gender}`,
-          `Role: ${selectedCharacter.traits.role}`
-        ];
-        
-        const randomHint = hints[Math.floor(Math.random() * hints.length)];
-        log.push({ type: 'hint', text: `💡 Hint: ${randomHint}` });
-        updateLog();
-      }
-
-      function evaluateQuestion(question, character = selectedCharacter) {
-        const q = question.toLowerCase();
-        const char = character;
-
-        function ynm(val) {
-          if (val === true) return 'Yes!';
-          if (val === false) return 'No.';
-          if (val === 'maybe') return 'Maybe.';
-          return "I'm not sure.";
-        }
-
-        // Fuzzy trait questions
-        if (/\bvillain\b|\bevil\b/.test(q)) {
-          return { type: 'answer', text: `😈 Villain? ${ynm(char.traits.isVillain)}` };
-        }
-        if (q.includes('princess') && q.includes('movie')) {
-          return { type: 'answer', text: `🎬 From a princess movie? ${ynm(char.traits.fromPrincessMovie)}` };
-        }
-        if (q.includes('plastic')) {
-          const mat = char.traits.material;
-          const ans = typeof mat === 'string' ? mat.toLowerCase() === 'plastic' : mat;
-          return { type: 'answer', text: `🏗️ Plastic? ${ynm(ans)}` };
-        }
-        if (/\bcar\b/.test(q)) {
-          const spec = (char.traits.species || char.species);
-          const ans = typeof spec === 'string' ? spec.toLowerCase() === 'car' : spec;
-          return { type: 'answer', text: `🚗 Car? ${ynm(ans)}` };
-        }
-        if (q.includes('robot')) {
-          const spec = (char.traits.species || char.species);
-          const ans = typeof spec === 'string' ? spec.toLowerCase() === 'robot' : spec;
-          return { type: 'answer', text: `🤖 Robot? ${ynm(ans)}` };
-        }
-        
-        // Check for character name
-        if (matchesCharacterName(question, char.name)) {
-          endGame(true);
-          return { type: 'correct', text: `🎉 You got it! It's ${char.name}!` };
-        }
-        
-        // Species questions
-        if (q.includes('human')) {
-          return { type: 'answer', text: `🧍‍♂️ Human? ${char.species === 'human' ? 'Yes!' : 'No.'}` };
-        }
-        if (q.includes('animal')) {
-          return { type: 'answer', text: `🐾 Animal? ${char.species === 'animal' ? 'Yes!' : 'No.'}` };
-        }
-        if (q.includes('mermaid')) {
-          return { type: 'answer', text: `🧜‍♀️ Mermaid? ${char.species === 'mermaid' ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Gender questions
-        const maleTerms = ['male', 'man', 'boy', 'guy'];
-        const femaleTerms = ['female', 'woman', 'girl', 'lady'];
-        const hasMale = maleTerms.some(t => q.includes(t));
-        const hasFemale = femaleTerms.some(t => q.includes(t));
-
-        if (hasMale && hasFemale || q.includes('gender')) {
-          return { type: 'answer', text: `⚧️ It's ${char.traits.gender}.` };
-        }
-        if (hasMale && !hasFemale) {
-          return { type: 'answer', text: `👨 Male? ${char.traits.gender === 'male' ? 'Yes!' : 'No.'}` };
-        }
-        if (hasFemale && !hasMale) {
-          return { type: 'answer', text: `👩 Female? ${char.traits.gender === 'female' ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Magic questions
-        if (q.includes('magic') || q.includes('magical')) {
-          return { type: 'answer', text: `✨ Has magic? ${char.traits.hasMagic ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Flying questions
-        if (q.includes('fly') || q.includes('flying')) {
-          return { type: 'answer', text: `🦅 Can fly? ${char.traits.canFly ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Royalty questions
-        if (q.includes('royal') || q.includes('prince') || q.includes('princess') || q.includes('king') || q.includes('queen')) {
-          return { type: 'answer', text: `👑 Royalty? ${char.traits.isRoyalty ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Pet questions
-        if (q.includes('pet')) {
-          return { type: 'answer', text: `🐕 Has a pet? ${char.traits.hasPet ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Action questions
-        if (q.includes('sing')) {
-          return { type: 'answer', text: `🎵 Sings? ${char.traits.actions.includes('sings') ? 'Yes!' : 'No.'}` };
-        }
-        if (q.includes('swim')) {
-          return { type: 'answer', text: `🏊‍♀️ Swims? ${char.traits.actions.includes('swims') ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Appearance questions
-        if (q.includes('red') || q.includes('redhead')) {
-          return { type: 'answer', text: `🔴 Has red hair? ${char.traits.appearance.includes('redhead') ? 'Yes!' : 'No.'}` };
-        }
-        if (q.includes('blonde') || q.includes('blond')) {
-          return { type: 'answer', text: `💛 Has blonde hair? ${char.traits.appearance.includes('blonde') ? 'Yes!' : 'No.'}` };
-        }
-        if (q.includes('blue')) {
-          return { type: 'answer', text: `🔵 Has something blue? ${char.traits.appearance.some(a => a.includes('blue')) ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Era questions
-        if (q.includes('renaissance')) {
-          return { type: 'answer', text: `🏰 From Renaissance era? ${char.era === 'renaissance' ? 'Yes!' : 'No.'}` };
-        }
-        if (q.includes('modern')) {
-          return { type: 'answer', text: `🆕 From modern era? ${char.era === 'modern' ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Movie questions
-        if (q.includes('frozen')) {
-          return { type: 'answer', text: `❄️ From Frozen? ${char.movie === 'Frozen' ? 'Yes!' : 'No.'}` };
-        }
-        if (q.includes('lion king')) {
-          return { type: 'answer', text: `🦁 From Lion King? ${char.movie === 'The Lion King' ? 'Yes!' : 'No.'}` };
-        }
-        if (q.includes('little mermaid')) {
-          return { type: 'answer', text: `🧜‍♀️ From Little Mermaid? ${char.movie === 'The Little Mermaid' ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Role questions
-        if (q.includes('hero') || q.includes('good')) {
-          return { type: 'answer', text: `🦸‍♀️ Is a hero? ${char.traits.role === 'hero' ? 'Yes!' : 'No.'}` };
-        }
-        
-        // Default response
-        return { type: 'answer', text: "🤔 I'm not sure how to answer that. Try asking about: species, gender, magic, appearance, or movie!" };
-      }
-
-      function updateLog() {
-        const logDiv = document.getElementById('log');
-        logDiv.innerHTML = log.map(entry => 
-          `<div class="log-entry ${entry.type}">${entry.text}</div>`
-        ).join('');
-        logDiv.scrollTop = logDiv.scrollHeight;
-      }
-
-      function updateQuestionsCount() {
-        document.getElementById('questionsCount').textContent = questionsLeft;
-      }
-
-      function endGame(won = false) {
-        gameOver = true;
-        document.getElementById('questionInput').disabled = true;
-        document.querySelectorAll('button').forEach(btn => {
-          if (btn.textContent !== 'New Game') btn.disabled = true;
-        });
-        
-        log.push({ 
-          type: 'game-over', 
-          text: won ? "🏆 Congratulations! You won!" : `💀 Game over! The character was ${selectedCharacter.name} from ${selectedCharacter.movie}` 
-        });
-        updateLog();
-      }
-
-      function resetGame() {
-        selectedCharacter = characters[Math.floor(Math.random() * characters.length)];
-        questionsLeft = 20;
-        log = [];
-        gameOver = false;
-        
-        document.getElementById('questionInput').disabled = false;
-        document.getElementById('questionInput').value = '';
-        document.querySelectorAll('button').forEach(btn => btn.disabled = false);
-
-        updateQuestionsCount();
-        showSuggestions();
-        log.push({ type: 'hint', text: `🎮 New game started! I'm thinking of a Disney character. Ask away!` });
-        updateLog();
-      }
-
-      // Allow Enter key to ask question
-      document.getElementById('questionInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          askQuestion();
-        }
-      });
-
-      // Start the game
-      resetGame();
-    </script>
+      <section class="footer-card">
+        <h3>Why it feels good</h3>
+        <p>Color is tactile, matching is intuitive, and every tiny miss makes you want one more try.</p>
+        <ul class="tips">
+          <li>Perfect matches add bonus time and score.</li>
+          <li>Limited drops force fast choices instead of endless doodling.</li>
+          <li>Customer-style orders add pressure so it feels like a real game, not just a toy.</li>
+        </ul>
+      </section>
+    </main>
   </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const pigments = [
+      { name: 'Crimson', hex: '#ff4d6d' },
+      { name: 'Sun', hex: '#ffb703' },
+      { name: 'Cyan', hex: '#22d3ee' },
+      { name: 'Azure', hex: '#4f46e5' },
+      { name: 'Pearl', hex: '#f8fafc' },
+      { name: 'Midnight', hex: '#0f172a' }
+    ];
+
+    const orders = [
+      { name: 'Sunset Soda', description: 'Warm coral with a hint of tropical neon.', color: '#ff6a5c' },
+      { name: 'Electric Lagoon', description: 'A juicy aqua for an energy drink label.', color: '#22c7d8' },
+      { name: 'Grape Fizz', description: 'A playful candy-purple for a soda can run.', color: '#8b5cf6' },
+      { name: 'Matcha Mist', description: 'Soft herbal green for a wellness pouch.', color: '#78c091' },
+      { name: 'Midnight Berry', description: 'Deep luxe indigo for premium packaging.', color: '#3944a7' },
+      { name: 'Peach Pop', description: 'Creamy peach for a beauty serum box.', color: '#ffb38a' }
+    ];
+
+    const state = {
+      score: 0,
+      round: 1,
+      timeLeft: 35,
+      maxDrops: 12,
+      dropsLeft: 12,
+      mix: [],
+      currentOrder: null,
+      timerId: null
+    };
+
+    const scoreEl = document.getElementById('score');
+    const roundEl = document.getElementById('round');
+    const timeLeftEl = document.getElementById('timeLeft');
+    const dropsLeftEl = document.getElementById('dropsLeft');
+    const orderTitleEl = document.getElementById('orderTitle');
+    const orderBlurbEl = document.getElementById('orderBlurb');
+    const targetSwatchEl = document.getElementById('targetSwatch');
+    const mixSwatchEl = document.getElementById('mixSwatch');
+    const targetHexEl = document.getElementById('targetHex');
+    const mixHexEl = document.getElementById('mixHex');
+    const formulaEl = document.getElementById('formula');
+    const pigmentButtonsEl = document.getElementById('pigmentButtons');
+    const meterFillEl = document.getElementById('meterFill');
+    const accuracyTextEl = document.getElementById('accuracyText');
+    const inkSurfaceEl = document.getElementById('inkSurface');
+    const accuracyBadgeEl = document.getElementById('accuracyBadge');
+    const toastEl = document.getElementById('toast');
+    const serveBtn = document.getElementById('serveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    function hexToRgb(hex) {
+      const clean = hex.replace('#', '');
+      const value = clean.length === 3
+        ? clean.split('').map(ch => ch + ch).join('')
+        : clean;
+      const int = parseInt(value, 16);
+      return {
+        r: (int >> 16) & 255,
+        g: (int >> 8) & 255,
+        b: int & 255
+      };
+    }
+
+    function rgbToHex({ r, g, b }) {
+      return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+
+    function averageMix() {
+      if (!state.mix.length) return { r: 107, g: 114, b: 128 };
+      const totals = state.mix.reduce((sum, pigment) => {
+        const rgb = hexToRgb(pigment.hex);
+        sum.r += rgb.r;
+        sum.g += rgb.g;
+        sum.b += rgb.b;
+        return sum;
+      }, { r: 0, g: 0, b: 0 });
+
+      return {
+        r: totals.r / state.mix.length,
+        g: totals.g / state.mix.length,
+        b: totals.b / state.mix.length
+      };
+    }
+
+    function matchPercent() {
+      const target = hexToRgb(state.currentOrder.color);
+      const mix = averageMix();
+      const distance = Math.sqrt(
+        Math.pow(target.r - mix.r, 2) +
+        Math.pow(target.g - mix.g, 2) +
+        Math.pow(target.b - mix.b, 2)
+      );
+      const maxDistance = Math.sqrt(255 * 255 * 3);
+      return Math.max(0, Math.round((1 - distance / maxDistance) * 100));
+    }
+
+    function renderFormula() {
+      if (!state.mix.length) {
+        formulaEl.innerHTML = '<div class="drop-chip">No drops yet — start pouring.</div>';
+        return;
+      }
+
+      const counts = state.mix.reduce((map, pigment) => {
+        map[pigment.name] = (map[pigment.name] || 0) + 1;
+        return map;
+      }, {});
+
+      formulaEl.innerHTML = Object.entries(counts)
+        .map(([name, count]) => `<div class="drop-chip">${name} × ${count}</div>`)
+        .join('');
+    }
+
+    function renderMix() {
+      const hex = rgbToHex(averageMix());
+      const accuracy = state.currentOrder ? matchPercent() : 0;
+      mixSwatchEl.style.background = hex;
+      inkSurfaceEl.style.background = `radial-gradient(circle at top left, rgba(255,255,255,0.22), transparent 28%), ${hex}`;
+      mixHexEl.textContent = hex;
+      accuracyTextEl.textContent = `${accuracy}%`;
+      meterFillEl.style.width = `${accuracy}%`;
+      accuracyBadgeEl.textContent = accuracy >= 96 ? 'Perfect zone' : accuracy >= 85 ? 'Great match' : 'Match 90%+';
+      renderFormula();
+      inkSurfaceEl.classList.remove('mix-flash');
+      void inkSurfaceEl.offsetWidth;
+      inkSurfaceEl.classList.add('mix-flash');
+    }
+
+    function renderStats() {
+      scoreEl.textContent = state.score;
+      roundEl.textContent = state.round;
+      timeLeftEl.textContent = state.timeLeft;
+      dropsLeftEl.textContent = state.dropsLeft;
+      const disabled = state.dropsLeft <= 0 || state.timeLeft <= 0;
+      document.querySelectorAll('.pour-btn').forEach(btn => btn.disabled = disabled);
+      serveBtn.disabled = state.timeLeft <= 0;
+      clearBtn.disabled = state.timeLeft <= 0;
+    }
+
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add('show');
+      clearTimeout(showToast.timeoutId);
+      showToast.timeoutId = setTimeout(() => toastEl.classList.remove('show'), 1800);
+    }
+
+    function setOrder(order) {
+      state.currentOrder = order;
+      orderTitleEl.textContent = `Order: ${order.name}`;
+      orderBlurbEl.textContent = order.description;
+      targetSwatchEl.style.background = order.color;
+      targetHexEl.textContent = order.color.toUpperCase();
+      state.mix = [];
+      state.dropsLeft = state.maxDrops;
+      renderMix();
+      renderStats();
+    }
+
+    function nextOrder() {
+      const order = orders[Math.floor(Math.random() * orders.length)];
+      setOrder(order);
+    }
+
+    function addPigment(index) {
+      if (state.dropsLeft <= 0 || state.timeLeft <= 0) return;
+      state.mix.push(pigments[index]);
+      state.dropsLeft -= 1;
+      renderMix();
+      renderStats();
+    }
+
+    function clearBowl() {
+      if (state.timeLeft <= 0) return;
+      state.mix = [];
+      showToast('Bowl cleared. Try another mix.');
+      renderMix();
+    }
+
+    function serveOrder() {
+      if (state.timeLeft <= 0) return;
+      const accuracy = matchPercent();
+      let points = Math.max(0, (accuracy - 55) * 2);
+      let message = `Delivered at ${accuracy}% match.`;
+
+      if (accuracy >= 96) {
+        points += 120;
+        state.timeLeft += 5;
+        message = `Perfect batch! ${accuracy}% match, +5s bonus.`;
+      } else if (accuracy >= 90) {
+        points += 60;
+        state.timeLeft += 3;
+        message = `Customer thrilled! ${accuracy}% match, +3s bonus.`;
+      } else if (accuracy < 70) {
+        state.timeLeft = Math.max(0, state.timeLeft - 4);
+        message = `Too far off at ${accuracy}%. Conveyor penalty: -4s.`;
+      }
+
+      state.score += points;
+      state.round += 1;
+      showToast(message);
+      nextOrder();
+    }
+
+    function endGame() {
+      clearInterval(state.timerId);
+      renderStats();
+      showToast(`Shift over! Final score: ${state.score}. Tap refresh to play again.`);
+    }
+
+    function startTimer() {
+      clearInterval(state.timerId);
+      state.timerId = setInterval(() => {
+        state.timeLeft -= 1;
+        if (state.timeLeft <= 0) {
+          state.timeLeft = 0;
+          endGame();
+        }
+        renderStats();
+      }, 1000);
+    }
+
+    function buildPigmentButtons() {
+      pigmentButtonsEl.innerHTML = pigments.map((pigment, index) => `
+        <button class="pour-btn" data-index="${index}" style="background: linear-gradient(135deg, ${pigment.hex}, rgba(255,255,255,0.18)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);">
+          ${pigment.name}
+        </button>
+      `).join('');
+
+      pigmentButtonsEl.querySelectorAll('.pour-btn').forEach(button => {
+        button.addEventListener('click', () => addPigment(Number(button.dataset.index)));
+      });
+    }
+
+    serveBtn.addEventListener('click', serveOrder);
+    clearBtn.addEventListener('click', clearBowl);
+
+    buildPigmentButtons();
+    nextOrder();
+    startTimer();
+  </script>
 </body>
 </html>
